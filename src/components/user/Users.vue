@@ -81,10 +81,12 @@
               placement="top-start"
               :enterable="false"
             >
+            <!-- 分配角色 -->
               <el-button
                 type="warning"
                 icon="el-icon-setting"
                 size="mini"
+                @click="setRole(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -161,6 +163,35 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="editDialog = false">取 消</el-button>
         <el-button type="primary" @click="reviseUserInfo">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 分配角色对话框 -->
+    <el-dialog
+      title="分配角色"
+      :visible.sync="setRoleDialogVisible"
+      width="50%"
+      class="allotDialog"
+      @close="setRoleDialogClose"
+      >
+      <div>
+        <p>当前的用户:  {{roleInfo.username}}</p>
+        <p>当前角色:  {{roleInfo.role_name}}</p>
+        <p>
+          分配新角色:
+        <el-select  v-model="selectValue" placeholder="请选择" size="mini">
+          <el-option 
+            v-for="item in rolesList" :key="item.id"
+            :label="item.roleName"
+            :value="item.id"
+            > 
+          </el-option>
+        </el-select>
+        </p>
+      </div>
+      <!-- 选择框 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="setRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="allotRole">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -242,6 +273,16 @@ export default {
       editDialog: false,
       // 修改用户信息表单信息
       editFormInfo: {},
+      // 分配角色dialog
+      setRoleDialogVisible: false,
+      // 当前用户信息
+      roleInfo: {},
+      // 所有角色的列表
+      rolesList: [],
+      // selectValue
+      selectValue: '',
+      // 当前用户id
+      userId: ''
     };
   },
   created() {
@@ -277,7 +318,7 @@ export default {
       this.queryInfo.pagenum = val;
       this.getUserList();
     },
-    // 监听switch 事件
+    // 监听switch开关事件
     switchChage(switchInfo) {
       console.log(switchInfo);
       // 拿到当前数据变化 去修改数据库中数据
@@ -394,6 +435,44 @@ export default {
           console.log(err)
           this.$message.error('已经取消删除')
         })
+    },
+    // 分配角色
+    setRole(roleInfo) {
+      this.setRoleDialogVisible = true
+      this.roleInfo = roleInfo
+      this.userId = roleInfo.id
+      // 获取所有角色分类
+      myRequest({
+        url: `roles`
+      }).then(res => {
+        if(res.data.meta.status === 200) {
+          this.rolesList = res.data.data
+        }
+      })
+    },
+    // 点击确认分配角色
+    allotRole() {
+      myRequest({
+        url: `users/${this.userId}/role`,
+        method: 'PUT',
+        data:{
+          rid: this.selectValue
+        }
+      }).then(res => {
+        // console.log(res)
+        if(res.data.meta.status === 200) {
+          this.$message.success(res.data.meta.msg)
+          this.setRoleDialogVisible = false
+          this.getUserList()
+        }else{
+          this.$message.error('设置失败')
+        }
+      })
+    },
+    // 分配角色dialog关闭时事件 清空选中id roleInfo 避免下次分配时有默认信息
+    setRoleDialogClose() {
+      this.selectValue = ''
+      this.roleInfo = {}
     }
   },
 };
@@ -411,5 +490,12 @@ export default {
 }
 .el-pagination {
   margin-top: 20px;
+}
+.allotDialog{
+  text-align: left;
+  line-height: 30px;
+}
+.el-select{
+  margin-left: 10px;
 }
 </style>
