@@ -18,3 +18,7 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale
 }
+/* 级联选择器 */
+.el-cascader-panel{
+  height: 200px !important;
+}

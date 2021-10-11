@@ -110,6 +110,7 @@ export default {
       line-height: 24px;
       cursor: pointer;
       letter-spacing: 0.2em;
+      text-align: center;
     }
   }
   .el-main {
