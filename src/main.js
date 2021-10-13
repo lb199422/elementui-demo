@@ -9,10 +9,17 @@ import './plugins/elementui.js'
 //  引入插件
 import TableTree from 'vue-table-with-tree-grid'
 
+//  引入富文本插件 VueQuillEditor
+import VueQuillEditor from 'vue-quill-editor'
+
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
+
 Vue.config.productionTip = false
 // 注册为全局组件
 Vue.component('table-tree', TableTree)
-
+Vue.use(VueQuillEditor)
 new Vue({
   router,
   store,
